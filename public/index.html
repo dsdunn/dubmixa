@@ -6,12 +6,18 @@
 <body>
   <div>
     <h3>DubMixa</h3>
-    <div class='channel'>
+    <div id='master' class='channel'>
       <button id='play'>play</button>
-      <label for='volume'>Vol</label>
-      <input type="range" name="volume">
+      <label for='mast-vol'>Vol</label>
+      <input id="mast-vol" type="range" name="mast-vol"/>
+    </div>
+    <div id='drums' class='channel'>
+      <button id='mute'>play</button>
+      <label for='drum-vol'>Vol</label>
+      <input id="drum-vol" type="range" name="drum-vol"/>
     </div>
   </div>
+
   <script type="text/javascript" src="https://unpkg.com/tone@13.4.9/build/Tone.js"></script>
   <script type="text/javascript" src='./index.js'></script>
 </body>
