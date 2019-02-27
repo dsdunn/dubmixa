@@ -25,8 +25,11 @@ const bassCapture = document.querySelector('#bass-capture');
 const guit1Capture = document.querySelector('#guit1-capture');
 const guit2Capture = document.querySelector('#guit2-capture');
 
+const masterFilterControl = document.querySelector('#master-filter');
+const captureFilterControl = document.querySelector('#capture-filter');
 
 const masterDelay = new Tone.FeedbackDelay(.21, .17);
+const masterFilter = new Tone.Filter(6000);
 const synth = new Tone.MembraneSynth().toMaster();
 
 makeChannel("dub_drums");
@@ -36,7 +39,6 @@ makeChannel("dub_lguit");
 
 
 window.addEventListener('keydown', (event) => {
-  event.preventDefault();
   if (event.key === ' ') {
     play();
   }
@@ -82,19 +84,27 @@ let channelCaptures = [drumsCapture, bassCapture, guit1Capture, guit2Capture];
 
 channelCaptures.forEach((capture, i) => {
   let captureDelay;
+  let captureFilter;
   
   capture.addEventListener('mousedown', () => {
-    captureDelay = new Tone.FeedbackDelay(.21, 1).toMaster();
+    captureFilter = new Tone.Filter();
+    captureDelay = new Tone.FeedbackDelay(.21, 1).chain(captureFilter, Tone.Master);
     channels[i].connect(captureDelay)
     channels[i].mute = true;
     capture.classList.add('captured');
   })
   capture.addEventListener('mouseup', () => {
     channels[i].disconnect(captureDelay);
+    captureFilter.dispose();
     captureDelay.dispose();
     channels[i].mute = false;
     capture.classList.remove('captured');
   })
+})
+
+masterFilterControl.addEventListener('input', (event) => {
+  let freq = event.target.value;
+  masterFilter.frequency.value = freq;
 })
 
 
@@ -111,7 +121,7 @@ function play () {
 
 
 function makeChannel(name){
-  var channel = new Tone.Channel().chain(masterDelay, Tone.Master);
+  var channel = new Tone.Channel().chain(masterDelay, masterFilter, Tone.Master);
   var player = new Tone.Player({
     url : `./assets/${name}.mp3`,
     loop : true
@@ -119,8 +129,3 @@ function makeChannel(name){
   player.chain(channel);
   channels.push(channel);
 }
-
-// const loop = new Tone.Loop(function(time) {
-//   console.log(time);
-//   synth.triggerAttackRelease('c2');
-// }, '2n').start(0);
