@@ -1,10 +1,6 @@
 
 let channels = [];
 
-makeChannel("dub_drums");
-makeChannel("dub_bass");
-makeChannel("dub_rguit");
-makeChannel("dub_lguit");
 
 const playButton = document.querySelector('#play');
 
@@ -24,8 +20,20 @@ const bassSolo = document.querySelector('#bass-solo');
 const guit1Solo = document.querySelector('#guit1-solo');
 const guit2Solo = document.querySelector('#guit2-solo');
 
+const drumsCapture = document.querySelector('#drums-capture');
+const bassCapture = document.querySelector('#bass-capture');
+const guit1Capture = document.querySelector('#guit1-capture');
+const guit2Capture = document.querySelector('#guit2-capture');
 
+
+const masterDelay = new Tone.FeedbackDelay(.21, .17);
 const synth = new Tone.MembraneSynth().toMaster();
+
+makeChannel("dub_drums");
+makeChannel("dub_bass");
+makeChannel("dub_rguit");
+makeChannel("dub_lguit");
+
 
 window.addEventListener('keydown', (event) => {
   event.preventDefault();
@@ -70,12 +78,25 @@ channelSolos.forEach((solo, i) => {
   })
 })
 
+let channelCaptures = [drumsCapture, bassCapture, guit1Capture, guit2Capture];
 
+channelCaptures.forEach((capture, i) => {
+  let captureDelay;
+  
+  capture.addEventListener('mousedown', () => {
+    captureDelay = new Tone.FeedbackDelay(.21, 1).toMaster();
+    channels[i].connect(captureDelay)
+    channels[i].mute = true;
+    capture.classList.add('captured');
+  })
+  capture.addEventListener('mouseup', () => {
+    channels[i].disconnect(captureDelay);
+    captureDelay.dispose();
+    channels[i].mute = false;
+    capture.classList.remove('captured');
+  })
+})
 
-// const loop = new Tone.Loop(function(time) {
-//   console.log(time);
-//   synth.triggerAttackRelease('c2');
-// }, '2n').start(0);
 
 function play () {
   if (Tone.Transport.state === 'stopped') {
@@ -90,7 +111,7 @@ function play () {
 
 
 function makeChannel(name){
-  var channel = new Tone.Channel().toMaster();
+  var channel = new Tone.Channel().chain(masterDelay, Tone.Master);
   var player = new Tone.Player({
     url : `./assets/${name}.mp3`,
     loop : true
@@ -98,3 +119,8 @@ function makeChannel(name){
   player.chain(channel);
   channels.push(channel);
 }
+
+// const loop = new Tone.Loop(function(time) {
+//   console.log(time);
+//   synth.triggerAttackRelease('c2');
+// }, '2n').start(0);
