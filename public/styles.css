@@ -9,3 +9,33 @@
 .captured {
   background: green;
 }
+
+.vol {
+  transform: rotate(270deg);
+  height: 15vh;
+}
+
+.mixer {
+  display: flex;
+  justify-content: center;
+}
+
+.channel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.filters {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 4em;
+}
+
+button {
+  width: 50%;
+}
